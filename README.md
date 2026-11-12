@@ -1,66 +1,127 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ZZP Accountant Lite
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Een webapplicatie voor Nederlandse freelancers (ZZP'ers) om gewerkte shifts, zakelijke kilometers en onkosten bij te houden. De app geeft direct een schatting van de nettowinst en de BTW-reservering voor de kwartaalaangifte.
 
-## About Laravel
+Gebouwd als portfolioproject tijdens mijn MBO Niveau 4 opleiding Software Development.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Screenshots
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+![Dashboard](docs/dashboard.png)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Functionaliteiten
 
-## Learning Laravel
+- **Dashboard** met samenvattingskaarten: totale inkomsten, gewerkte uren, zakelijke kilometers, onkosten, geschatte nettowinst en BTW-reservering voor het lopende kwartaal. Daaronder een tabel met recente shifts en ritten.
+- **Shift tracker**: opdrachtgever, datum, uren, uurtarief en BTW-tarief (21%, 9% of BTW-vrij). Bedragen exclusief en inclusief BTW worden automatisch berekend.
+- **Kilometerregistratie**: datum, van, naar, kilometers en voertuig. De fiscale aftrekpost (€ 0,23 per km) wordt automatisch berekend.
+- **Onkostenregistratie**: titel, categorie (Apparatuur, Reiskosten, Software), bedrag excl. BTW en BTW-bedrag.
+- **Gebruikersaccounts** (registreren en inloggen). Elke gebruiker ziet alleen de eigen gegevens.
+- **Profielfoto uploaden**, getoond in de sidebar.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Berekeningen
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+De berekeningen staan in de helper `app/Helpers/TaxCalculator.php`:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Berekening | Formule |
+|---|---|
+| Kilometeraftrek | kilometers × € 0,23 |
+| Nettowinst | omzet − (onkosten + kilometeraftrek) |
+| BTW-reservering | ontvangen BTW − betaalde BTW |
 
-## Laravel Sponsors
+> **Let op:** dit zijn schattingen en geen belastingadvies. De app berekent geen volledige inkomstenbelasting (zoals zelfstandigenaftrek of schijventarieven).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Technieken
 
-### Premium Partners
+- Laravel 11 (PHP 8.3), MVC-structuur
+- Eloquent ORM met relaties en foreign keys
+- Form Requests voor validatie, met Nederlandse foutmeldingen
+- Blade-templates met herbruikbare componenten
+- Tailwind CSS
+- Laravel Breeze voor authenticatie
+- PHPUnit tests
+- GitHub Actions (CI) die bij elke push `php artisan test` draait
+- Docker Compose (PHP-FPM, nginx, MariaDB)
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Projectstructuur
 
-## Contributing
+```
+app/
+  Helpers/TaxCalculator.php        berekeningen
+  Http/Controllers/                Dashboard, Shift, Trip, Expense, ProfilePhoto
+  Http/Requests/                   validatie per formulier
+  Models/                          User, Shift, Trip, Expense
+database/migrations/               shifts, trips, expenses (met foreign keys)
+resources/views/                   Blade-views en componenten
+tests/                             unit- en feature-tests
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Installatie (lokaal)
 
-## Code of Conduct
+Vereisten: PHP 8.3 of hoger, Composer en Node.js.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+git clone https://github.com/ZakariaB05/zzp-accountant-lite.git
+cd zzp-accountant-lite
 
-## Security Vulnerabilities
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan storage:link
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+npm install
+npm run build
 
-## License
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Open daarna http://127.0.0.1:8000 en maak een account aan.
+
+## Installatie met Docker
+
+```bash
+cp .env.example .env
+```
+
+Zet in `.env` deze databasegegevens:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=db
+DB_PORT=3306
+DB_DATABASE=zzp_accountant
+DB_USERNAME=zzp
+DB_PASSWORD=secret
+```
+
+```bash
+docker compose up -d --build
+docker compose exec app composer install
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+docker compose exec app php artisan storage:link
+
+npm install
+npm run build
+```
+
+Open daarna http://localhost:8080.
+
+## Tests
+
+```bash
+php artisan test
+```
+
+De tests controleren onder andere de berekening van € 0,23 per kilometer, de nettowinst en BTW-reservering, en of het dashboard alleen toegankelijk is voor ingelogde gebruikers.
+
+## Mogelijke verbeteringen
+
+- Filteren en zoeken op periode (kwartaal, jaar)
+- Exporteren naar CSV of PDF voor de boekhouder
+- Feature-tests voor de CRUD-controllers
+- Zelfstandigenaftrek en belastingschijven meenemen in de schatting
+- Facturen genereren op basis van shifts
+
+## Auteur
+
+Zakaria — [GitHub](https://github.com/ZakariaB05)
