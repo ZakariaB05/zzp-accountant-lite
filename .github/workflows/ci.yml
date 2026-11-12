@@ -1,0 +1,39 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP instellen
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite
+
+      - name: Node instellen
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: PHP-dependencies installeren
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Frontend bouwen
+        run: |
+          npm ci
+          npm run build
+
+      - name: .env voorbereiden
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Tests uitvoeren
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+        run: php artisan test
